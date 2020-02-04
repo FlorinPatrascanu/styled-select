@@ -32,12 +32,14 @@ var selectUtils = {
         return wrapper;
     },
 
-    setStylesOnSelects: function(fieldId) {
+    makeStyledSelect: function(fieldId) {
         var elementId = '#' + fieldId;
         var selectId = 'Select' + fieldId;
         var parentNode = document.querySelector(elementId).parentNode;
         parentNode.insertAdjacentHTML('afterend', this.renderStyledSelect(elementId, 'selectUtils.updateSelect(event)', selectId, 'col-lg-6 col-md-6 col-sm-6 col-xs-12 u-no-padding styled-select'));
         parentNode.classList.add('u-hidden');
+        this.addSearchOptionsToSelect('#' + selectId);
+        this.handleOnFocusEnterKeyPress(document.querySelector('#' + selectId));
     },
 
     updateSelect: function(event, type) {
@@ -94,7 +96,14 @@ var selectUtils = {
         // also , this is usefull when we want to describe what needs to be done in the select : for instance 'Please select an option'
         document.querySelector(select).querySelectorAll('.dropdown__item')[0].classList.add('first__dropdown__option');
         document.querySelector(select).querySelectorAll('.dropdown__item')[0].classList.add('u-hidden');
+    },
+
+    handleOnFocusEnterKeyPress: function(select) {
+        select.querySelectorAll('.dropdown__item').forEach(function(option){
+            option.addEventListener('keypress' , function(event) {
+                if(event.keyCode === 13) {option.click()}
+            });
+        });
     }
 };
-selectUtils.setStylesOnSelects('mySelect');
-selectUtils.addSearchOptionsToSelect('#SelectmySelect');
+selectUtils.makeStyledSelect('mySelect');
