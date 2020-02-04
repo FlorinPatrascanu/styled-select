@@ -42,7 +42,7 @@ var selectUtils = {
         this.handleOnFocusEnterKeyPress(document.querySelector('#' + selectId));
     },
 
-    updateSelect: function(event, type) {
+    updateSelect: function(event) {
         var currentTarget = event.currentTarget;
         var selectedValue = currentTarget.attributes['data-value'].value;
         var targetedSelect = currentTarget.closest('.styled-select').attributes['data-target'].value;
@@ -51,27 +51,6 @@ var selectUtils = {
         // update label
         currentTarget.closest('.styled-select').querySelector('label.dropdown__header').innerHTML = event.currentTarget.textContent;
         currentTarget.closest('.styled-select').querySelector('.dropdown-trigger-off').dispatchEvent(new Event('click'));
-        // recreate states 
-        if (type == 'country') {
-            /* countriesWithRegions should be an array with the following structure:
-            [{
-                countryName: 'Canada',
-                countryCode: 'CA',
-                countryRegions: [
-                    {
-                        regionName : 'Alberta',
-                        regionCode : 'AB'
-                    }
-                ]
-                ....
-            }] */
-            var targetCountry = countriesWithRegions.filter(function(obj) {return obj.countryCode == selectedValue;});
-            document.querySelector('div.styled-select[data-target="' + targetedSelect.replace('Country', 'Region') + '"] .dropdown__content').querySelectorAll('.dropdown__item').forEach(function(el) {el.remove()});
-            document.querySelector('div.styled-select[data-target="' + targetedSelect.replace('Country', 'Region') + '"] .dropdown__content').insertAdjacentHTML('beforeend', buildRegionSelect(targetCountry[0].countryRegions, false));
-            // update label
-            document.querySelector('div.styled-select[data-target="' + targetedSelect.replace('Country', 'Region') + '"] .dropdown__content').previousElementSibling.textContent = document.querySelector('div.styled-select[data-target="' + targetedSelect.replace('Country', 'Region') + '"] .dropdown__content').querySelectorAll('.dropdown__item')[0].textContent;
-        }
-
         // close dropdown
         currentTarget.closest('.styled-select').querySelector('input.dropdown-trigger').checked = false;
     },
