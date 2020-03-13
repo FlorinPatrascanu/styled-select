@@ -1,14 +1,14 @@
 var selectUtils = {
-    renderStyledSelect: function(targetElement, eventHandlerFn, selectId, cssClass) {
+    config: {
+        pushContent: false,
+    },
+    renderStyledSelect: function(targetElement, eventHandlerFn, selectId) {
         var wrapper = '';
         var dropdownTriggerInputId = selectId + 'Checkbox';
         var firstOptionTextContent = document.querySelector(targetElement).querySelectorAll('option')[0].textContent;
-
-        // hide select 
+        // hide select
         if (!document.querySelector(targetElement).classList.contains('u-hidden')) {document.querySelector(targetElement).classList.add('u-hidden')}
-
-        wrapper += '<div class="' + cssClass + '" id="' + selectId + '" data-target="' + targetElement.replace('#', '') + '">';
-
+        wrapper += '<div class="styled-select" id="' + selectId + '" data-target="' + targetElement.replace('#', '') + '">';
         wrapper += '<input type="checkbox" id="' + dropdownTriggerInputId + '" class="dropdown-trigger">';
         wrapper += '<div class="dropdown dw-mod js-filter">';
         wrapper += '<label class="dropdown__header dropdown__btn dw-mod" for="' + dropdownTriggerInputId + '">';
@@ -17,14 +17,14 @@ var selectUtils = {
         wrapper += '<div class="dropdown__content dw-mod">';
         // add search
         wrapper += '<div class="dropdown__item__filter"><input type="text" placeholder="Search"/></div>';
-
+        wrapper += '<div class="dropdown__items__wrapper">';
         document.querySelector(targetElement).querySelectorAll('option').forEach(function(element) {
             eventHandlerFn != null ? wrapper += '<div class="dropdown__item dw-mod" onclick="' + eventHandlerFn + '" data-value="' + element.value + '" tabindex=0>' :
                                      wrapper += '<div class="dropdown__item dw-mod" data-value="' + element.value + '" tabindex=0>';
             wrapper += element.textContent;
             wrapper += '</div>';
         });
-
+        wrapper += '</div>'; // end dropdown items wrapper
         wrapper += '</div>'; // end dropdown content wrapper
         wrapper += ' <label class="dropdown-trigger-off u-bg-transparent" for="' + dropdownTriggerInputId + '"></label>';
         wrapper += '</div>'; // end dropdown wrapper
@@ -36,8 +36,7 @@ var selectUtils = {
         var elementId = '#' + fieldId;
         var selectId = 'Select' + fieldId;
         var parentNode = document.querySelector(elementId).parentNode;
-        parentNode.insertAdjacentHTML('afterend', this.renderStyledSelect(elementId, 'selectUtils.updateSelect(event)', selectId, 'col-lg-offset-3 col-lg-6 col-md-offset-3 col-md-6 col-sm-12 col-xs-12 u-no-padding styled-select'));
-        parentNode.classList.add('u-hidden');
+        parentNode.insertAdjacentHTML('beforeend', this.renderStyledSelect(elementId, 'selectUtils.updateSelect(event)', selectId));
         this.addSearchOptionsToSelect('#' + selectId);
         this.handleOnFocusEnterKeyPress(document.querySelector('#' + selectId));
     },
@@ -83,6 +82,149 @@ var selectUtils = {
                 if(event.keyCode === 13) {option.click()}
             });
         });
+    },
+
+    setValueOnStyledSelect: function(select) {
+        var target = document.querySelector('.styled-select[data-target="' + select.attributes.id.value + '"]');
+        target.querySelector('.dropdown__header').innerHTML = target.querySelector('.dropdown__item[data-value="' + select.querySelector('option[selected="selected"]').value + '"]').innerHTML;
+    },
+
+    createAndAppendStyles: function() {
+        var css = `        
+
+        .styled-select .dropdown__items__wrapper {
+            max-height: 290px;
+            overflow: auto;
+            margin-top: 50px;
+            border-top: 1px solid #f1f2f2;
+        }
+
+        .styled-select .js-filter {
+            position: relative;
+        }
+
+        .styled-select .js-filter .dropdown__item__filter {
+            position: absolute;
+            z-index: 999;
+            display: none;
+        }
+
+        .styled-select .dropdown-trigger:checked ~ .js-filter .dropdown__item__filter {
+            display: block !important;
+            width: 100%;
+            top: 0px;
+        }
+
+        .styled-select .dropdown-trigger {
+            display: none;
+        }
+
+        .styled-select .dropdown__item.dw-mod {
+            padding: 14px 22px !important;
+            border-bottom: 2px solid #f1f2f2;
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .styled-select .dropdown__item.dw-mod:hover {
+            background-color: #e4e4e4;
+        }
+
+        .styled-select .dropdown__btn.dw-mod {
+            border: 1px solid #f1f2f2;
+            border-bottom: 2px solid #07263f;
+            background-color: white !important;
+            padding: 14px 22px !important;
+            box-sizing: border-box;
+            height: auto;
+            line-height: normal;
+        }
+
+        .styled-select .dropdown__content {
+            text-align: left;
+            overflow: hidden;
+            max-height: 0;
+            max-height: 345px;
+            position: ${selectUtils.config.pushContent ? 'relative' : 'absolute'};
+            width: 100%;
+            z-index: 100;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            box-shadow: 0 3px 6px rgba(0,0,0,.175);
+            display: none;
+            top: ${selectUtils.config.pushContent ? '-5px' : '46px'};
+        }
+
+        .styled-select .dropdown-trigger-off {
+            display: none;
+            background-color: ${selectUtils.config.pushContent ? 'transparent' : 'rgba(0,0,0,.3)'};
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            z-index: 90;
+            left: 0;
+            top: 0;
+        }
+
+        .styled-select .dropdown-trigger:checked+.dropdown .dropdown-trigger-off ,
+        .styled-select .dropdown-trigger:checked+.dropdown .dropdown__content {
+            display: block;
+        }
+
+        .u-hidden {
+            display: none;
+        }
+
+        .styled-select .dropdown__header {
+            width: 100%;
+        }
+
+        .styled-select .dropdown__header::after {
+            font-family: "Font Awesome 5 Pro","Font Awesome 5 Free";
+            font-weight: 900;
+            content: '';
+            margin-left: .5em;
+            position: absolute;
+            right: 1em;
+            font-size: 18px;
+        }
+
+        .styled-select .dropdown-trigger:checked+.dropdown .dropdown__header::after {
+            font-family: "Font Awesome 5 Pro","Font Awesome 5 Free";
+            font-weight: 900;
+            content: '';
+            float: right;
+            font-size: 18px;
+        }
+
+        .styled-select .dropdown__item__filter input {
+            width: 100%;
+            padding: 14px 22px !important;
+            border-left: 0;
+            border-right: 0;
+            border-top: 0;
+        }`,
+        head = document.head || document.getElementsByTagName('head')[0],
+        style = document.createElement('style');
+
+        head.appendChild(style);
+
+        style.type = 'text/css';
+        if (style.styleSheet){
+        // This is required for IE8 and below.
+            style.styleSheet.cssText = css;
+        } else {
+            style.appendChild(document.createTextNode(css));
+        }
     }
 };
-selectUtils.makeStyledSelect('mySelect');
+
+
+window.addEventListener('load' , function(event){
+    console.log('loaded! v2');
+    selectUtils.createAndAppendStyles();
+    document.querySelectorAll('.custom-select').forEach(function(item){
+        selectUtils.makeStyledSelect(item.attributes.id.value);
+        if(item.querySelector('option[selected="selected"]') !== null) {selectUtils.setValueOnStyledSelect(item);}
+    });
+});
