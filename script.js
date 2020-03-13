@@ -121,7 +121,7 @@ var selectUtils = {
 
         .styled-select .dropdown__item.dw-mod {
             padding: 14px 22px !important;
-            border-bottom: 2px solid #f1f2f2;
+            border-bottom: 1px solid #f1f2f2;
             font-size: 16px;
             margin: 0;
         }
@@ -200,9 +200,7 @@ var selectUtils = {
         .styled-select .dropdown__item__filter input {
             width: 100%;
             padding: 14px 22px !important;
-            border-left: 0;
-            border-right: 0;
-            border-top: 0;
+            border: none;
         }`,
         head = document.head || document.getElementsByTagName('head')[0],
         style = document.createElement('style');
